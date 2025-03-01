@@ -209,7 +209,10 @@ def profile(
     model.apply(add_hooks)
 
     with torch.no_grad():
-        model(*inputs)
+        if isinstance(inputs, tuple):
+            output = model(*inputs)
+        else:
+            output = model(**inputs)
 
     def dfs_count(module: nn.Module, prefix="\t") -> (int, int):
         total_ops, total_params = module.total_ops.item(), 0
@@ -244,4 +247,4 @@ def profile(
 
     if ret_layer_info:
         return total_ops, total_params, ret_dict
-    return total_ops, total_params
+    return output, total_ops, total_params
